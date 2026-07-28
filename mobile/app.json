@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Smart Campus Nav",
+    "slug": "smart-campus-nav",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Your location is used to show where you are on the campus map and to give directions to campus buildings."
+      }
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.anonymous.smartcampusnav"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Your location is used to show where you are on the campus map and to give directions to campus buildings."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "701378a9-1cfa-426d-b94a-75071bb7bdd0"
+      }
+    },
+    "owner": "ndonyi"
+  }
+}
