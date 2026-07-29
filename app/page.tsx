@@ -93,7 +93,9 @@ export default async function Home() {
               </Link>
             </div>
             <p className="mt-6 text-sm text-slate-500">
-              Demo: <span className="font-medium text-slate-700">admin@cas.test</span> · password
+              Demo — Admin: <span className="font-medium text-slate-700">admin@cas.test</span> ·
+              Lecturer: <span className="font-medium text-slate-700">emmanuel.nkeng@yibs.test</span>{" "}
+              <span className="text-slate-400">(password)</span>
             </p>
           </div>
 
@@ -215,7 +217,7 @@ export default async function Home() {
                 <Link href="/lecturer/allocate" className="rounded-xl bg-brand-600 px-6 py-3 font-medium text-white shadow-sm transition hover:bg-brand-700">
                   Allocate my course
                 </Link>
-                <Link href="/login" className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
+                <Link href="/login?next=/lecturer/allocate" className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
                   Lecturer sign in
                 </Link>
               </div>

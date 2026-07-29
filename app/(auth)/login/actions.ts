@@ -64,5 +64,8 @@ export async function loginAction(
     description: `${user.name} logged in`,
   });
 
-  redirect(homePathForRole(user.role as Role));
+  // Honour a safe `next` destination (e.g. from "Allocate my course"), else role home.
+  const next = String(formData.get("next") ?? "");
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "";
+  redirect(safeNext || homePathForRole(user.role as Role));
 }

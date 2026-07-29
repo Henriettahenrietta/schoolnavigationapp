@@ -8,7 +8,9 @@ import { SESSION_COOKIE, verifySession } from "./lib/auth/session";
 const ADMIN_PREFIX = "/admin";
 const LECTURER_PREFIX = "/lecturer";
 // Routes reachable only when logged OUT (redirect logged-in users away).
-const AUTH_PAGES = ["/login", "/register", "/forgot-password", "/reset-password"];
+// NOTE: /login is intentionally excluded so a signed-in user can switch accounts
+// (the login page shows a "you're signed in as …, sign out" banner instead).
+const AUTH_PAGES = ["/register", "/forgot-password", "/reset-password"];
 
 function homeFor(role: string): string {
   if (role === "admin") return "/admin";
