@@ -8,7 +8,18 @@ import { SubmitButton } from "@/components/submit-button";
 import { DAYS, DAY_LABELS } from "@/lib/constants";
 import type { ConflictResult, FreeSlot } from "@/lib/conflict/core";
 
-type Option = { id: number; code?: string; title?: string; name?: string; capacity?: number };
+type Option = { id: number; code?: string; title?: string; name?: string; capacity?: number; departmentName?: string };
+
+function groupByDept(courses: Option[]): [string, Option[]][] {
+  const map = new Map<string, Option[]>();
+  for (const c of courses) {
+    const key = c.departmentName ?? "Courses";
+    const arr = map.get(key) ?? [];
+    arr.push(c);
+    map.set(key, arr);
+  }
+  return [...map.entries()];
+}
 
 export function RequestForm({
   sessionId,
@@ -88,15 +99,19 @@ export function RequestForm({
             </Alert>
           )}
           <form action={formAction}>
-            <Field label="Course" htmlFor="courseId">
+            <Field label="Course" htmlFor="courseId" hint="Teach across departments — pick any course.">
               <Select id="courseId" name="courseId" required value={courseId} onChange={(e) => setCourseId(e.target.value)}>
                 <option value="" disabled>
                   Select a course…
                 </option>
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.code} — {c.title}
-                  </option>
+                {groupByDept(courses).map(([dept, list]) => (
+                  <optgroup key={dept} label={dept}>
+                    {list.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.code} — {c.title}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </Select>
             </Field>

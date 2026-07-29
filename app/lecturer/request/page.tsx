@@ -19,16 +19,13 @@ export default async function RequestAllocationPage() {
     );
   }
 
-  // Courses the lecturer can request: their department's courses in the active session
-  // (falling back to all session courses if they have no department).
-  const courses = await prisma.course.findMany({
-    where: {
-      sessionId: session.id,
-      ...(user.departmentId ? { departmentId: user.departmentId } : {}),
-    },
-    orderBy: [{ level: "asc" }, { code: "asc" }],
-    select: { id: true, code: true, title: true },
+  // Lecturers may teach across departments — offer every course, grouped by department.
+  const allCourses = await prisma.course.findMany({
+    where: { sessionId: session.id },
+    include: { department: true },
+    orderBy: [{ departmentId: "asc" }, { level: "asc" }, { code: "asc" }],
   });
+  const courses = allCourses.map((c) => ({ id: c.id, code: c.code, title: c.title, departmentName: c.department.name }));
   const venues = await prisma.venue.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true, capacity: true },

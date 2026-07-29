@@ -37,6 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       title: "Allocation",
       items: [
         { href: "/admin/requests", label: "Requests", icon: <IconClipboard /> },
+        { href: "/admin/allocations", label: "Manage classes", icon: <IconCalendar /> },
         { href: "/admin/generate", label: "Generate timetable", icon: <IconSpark /> },
         { href: "/admin/timetable", label: "Master timetable", icon: <IconGrid /> },
       ],

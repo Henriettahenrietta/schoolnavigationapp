@@ -19,11 +19,13 @@ export default async function AllocatePage() {
     );
   }
 
-  const courses = await prisma.course.findMany({
-    where: { sessionId: session.id, ...(user.departmentId ? { departmentId: user.departmentId } : {}) },
-    orderBy: [{ level: "asc" }, { code: "asc" }],
-    select: { id: true, code: true, title: true },
+  // Lecturers may teach across departments — show every course, grouped by department.
+  const allCourses = await prisma.course.findMany({
+    where: { sessionId: session.id },
+    include: { department: true },
+    orderBy: [{ departmentId: "asc" }, { level: "asc" }, { code: "asc" }],
   });
+  const courses = allCourses.map((c) => ({ id: c.id, code: c.code, title: c.title, departmentName: c.department.name }));
   const venues = await prisma.venue.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, capacity: true } });
 
   return (
