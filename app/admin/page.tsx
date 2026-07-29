@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/current-user";
 import { StatCard } from "@/components/stat-card";
@@ -54,8 +55,57 @@ export default async function AdminDashboard() {
 
       {!session && (
         <Alert variant="warning" title="No active session">
-          Create and activate a session to start allocating courses. (Coming in Phase 3.)
+          Create and activate a session to start allocating courses.
         </Alert>
+      )}
+
+      {session && (
+        <div
+          className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${
+            session.isPublished
+              ? "border-green-200 bg-green-50"
+              : "border-amber-200 bg-amber-50"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className={`grid h-10 w-10 place-items-center rounded-lg ${
+                session.isPublished ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
+              }`}
+            >
+              <IconCalendar />
+            </span>
+            <div>
+              <p className="flex items-center gap-2 font-semibold text-slate-800">
+                Timetable
+                <Badge variant={session.isPublished ? "green" : "amber"}>
+                  {session.isPublished ? "● Published" : "Unpublished"}
+                </Badge>
+              </p>
+              <p className="text-sm text-slate-500">
+                {session.isPublished
+                  ? "Students can view the published timetable at /timetable."
+                  : "Not visible to students yet. Publish it from the master timetable."}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {session.isPublished && (
+              <Link
+                href="/timetable"
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                View public
+              </Link>
+            )}
+            <Link
+              href="/admin/timetable"
+              className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700"
+            >
+              {session.isPublished ? "Manage" : "Publish"}
+            </Link>
+          </div>
+        </div>
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
