@@ -8,6 +8,8 @@ import { TimetableGrid, type GridAllocation } from "@/components/timetable-grid"
 import { LEVELS } from "@/lib/constants";
 import { SCHOOL_NAME, SCHOOL_SHORT } from "@/lib/branding";
 
+export const dynamic = "force-dynamic";
+
 // Public, no-login timetable. Serves the PUBLISHED timetable only; a department + level
 // selector filters to a class timetable. Printable to PDF.
 export default async function PublicTimetablePage({

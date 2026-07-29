@@ -13,6 +13,9 @@ import {
   IconCalendar,
 } from "@/components/icons";
 
+// Rendered per request (reads live stats from the DB), never statically at build time.
+export const dynamic = "force-dynamic";
+
 // Public landing page for the YIBS Course Allocation System.
 export default async function Home() {
   // Live stats — fall back to sensible numbers if the DB link is briefly unreachable.
