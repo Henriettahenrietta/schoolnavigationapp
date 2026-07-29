@@ -1,0 +1,232 @@
+// Course Allocation System (CAS) — data model.
+// DB: PostgreSQL (Neon). Enum-like columns are kept as String with allowed values
+// documented here and enforced by the Zod validation layer in lib/validation.ts (this
+// keeps a single source of truth and made the SQLite→Postgres switch trivial). Times are
+// stored as "HH:MM" 24-hour strings; JSON-ish fields are stored as String.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------------------------------------------------------
+// Users & organisation
+// ----------------------------------------------------------------------------
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("lecturer") // admin | lecturer | student
+  staffId      String?
+  departmentId Int?
+  phone        String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  department          Department?            @relation(fields: [departmentId], references: [id])
+  allocations         Allocation[]           @relation("LecturerAllocations")
+  approvedAllocations Allocation[]           @relation("ApprovedByUser")
+  availability        LecturerAvailability[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]
+  generationRuns      GenerationRun[]        @relation("RunBy")
+
+  @@index([role])
+  @@index([departmentId])
+}
+
+model Department {
+  id   Int    @id @default(autoincrement())
+  name String
+  code String @unique
+
+  users      User[]
+  programmes Programme[]
+  courses    Course[]
+}
+
+model Programme {
+  id           Int    @id @default(autoincrement())
+  departmentId Int
+  name         String
+  level        Int // 100 | 200 | 300 | 400 | 500
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@index([departmentId])
+}
+
+model Venue {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  building String
+  capacity Int
+  type     String @default("lecture_hall") // lecture_hall | lab | studio
+
+  allocations Allocation[]
+}
+
+model Session {
+  id        Int       @id @default(autoincrement())
+  name        String // e.g. "2025/2026"
+  semester    String    @default("first") // first | second
+  isActive    Boolean   @default(false)
+  isPublished Boolean   @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+
+  courses        Course[]
+  allocations    Allocation[]
+  generationRuns GenerationRun[]
+
+  @@unique([name, semester])
+}
+
+model Course {
+  id               Int    @id @default(autoincrement())
+  code             String
+  title            String
+  creditUnits      Int    @default(2)
+  departmentId     Int
+  level            Int // 100..500
+  expectedStudents Int    @default(50)
+  semester         String @default("first") // first | second
+  sessionId        Int
+
+  department  Department   @relation(fields: [departmentId], references: [id])
+  session     Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  allocations Allocation[]
+
+  @@unique([code, sessionId])
+  @@index([departmentId, level])
+  @@index([sessionId])
+}
+
+// ----------------------------------------------------------------------------
+// Allocations (the timetable rows) & availability
+// ----------------------------------------------------------------------------
+
+model Allocation {
+  id               Int      @id @default(autoincrement())
+  sessionId        Int
+  courseId         Int
+  lecturerId       Int
+  venueId          Int
+  dayOfWeek        String // mon | tue | wed | thu | fri | sat
+  startTime        String // "HH:MM"
+  endTime          String // "HH:MM"
+  status           String   @default("pending") // draft | pending | approved | declined | cancelled
+  source           String   @default("manual") // manual | auto
+  generationRunId  Int?
+  isLocked         Boolean  @default(false)
+  declineReason    String?
+  approvedById     Int?
+  approvedAt       DateTime?
+  isOverride       Boolean  @default(false)
+  overrideReason   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  session       Session        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lecturer      User           @relation("LecturerAllocations", fields: [lecturerId], references: [id])
+  venue         Venue          @relation(fields: [venueId], references: [id])
+  approvedBy    User?          @relation("ApprovedByUser", fields: [approvedById], references: [id])
+  generationRun GenerationRun? @relation(fields: [generationRunId], references: [id], onDelete: SetNull)
+
+  // Core conflict-lookup indexes (Section 3 requirement).
+  @@index([sessionId, dayOfWeek, startTime, endTime, venueId])
+  @@index([lecturerId, dayOfWeek])
+  @@index([status])
+  @@index([generationRunId])
+}
+
+model LecturerAvailability {
+  id         Int    @id @default(autoincrement())
+  lecturerId Int
+  dayOfWeek  String // mon..sat
+  startTime  String // "HH:MM"
+  endTime    String // "HH:MM"
+  preference String @default("preferred") // unavailable | preferred
+
+  lecturer User @relation(fields: [lecturerId], references: [id], onDelete: Cascade)
+
+  @@index([lecturerId, dayOfWeek])
+}
+
+// ----------------------------------------------------------------------------
+// Automatic generation, notifications, audit, settings
+// ----------------------------------------------------------------------------
+
+model GenerationRun {
+  id              Int      @id @default(autoincrement())
+  sessionId       Int
+  runById         Int
+  mode            String // full | fill
+  randomSeed      Int?
+  coursesTotal    Int      @default(0)
+  coursesPlaced   Int      @default(0)
+  coursesUnplaced Int      @default(0)
+  qualityScore    Float    @default(0)
+  runtimeMs       Int      @default(0)
+  status          String   @default("draft") // draft | accepted | discarded | rolled_back
+  unplacedReport  String   @default("[]") // JSON array (SQLite has no native JSON type)
+  createdAt       DateTime @default(now())
+
+  session     Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  runBy       User         @relation("RunBy", fields: [runById], references: [id])
+  allocations Allocation[]
+
+  @@index([sessionId])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  action      String
+  entityType  String
+  entityId    Int?
+  description String
+  ip          String?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Setting {
+  id                        Int     @id @default(autoincrement())
+  dayStartTime              String  @default("08:00")
+  dayEndTime                String  @default("18:00")
+  slotDurationMinutes       Int     @default(60)
+  workingDays               String  @default("[\"mon\",\"tue\",\"wed\",\"thu\",\"fri\"]") // JSON array
+  maxWeeklyHoursPerLecturer Int     @default(18)
+  allowOverrides            Boolean @default(true)
+  lunchStart                String  @default("13:00")
+  lunchEnd                  String  @default("14:00")
+  maxConsecutiveHours       Int     @default(4)
+}
