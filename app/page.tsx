@@ -194,6 +194,61 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Lecturer self-service space */}
+      <section className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-16">
+          <div className="grid items-center gap-8 rounded-3xl border border-brand-200 bg-brand-50/50 p-8 lg:grid-cols-2 lg:p-12">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white">
+                <IconSpark /> For lecturers
+              </span>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+                Allocate your course in seconds
+              </h2>
+              <p className="mt-3 text-slate-600">
+                Sign in, choose your course, and pick a slot. If it's free it's{" "}
+                <strong className="text-slate-800">allocated instantly</strong>; if it's already
+                taken it's declined — and our <strong className="text-slate-800">Smart Assistant</strong>{" "}
+                shows you every free day and hour to choose from.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="/lecturer/allocate" className="rounded-xl bg-brand-600 px-6 py-3 font-medium text-white shadow-sm transition hover:bg-brand-700">
+                  Allocate my course
+                </Link>
+                <Link href="/login" className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
+                  Lecturer sign in
+                </Link>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-white"><IconSpark /></span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Smart Assistant</p>
+                  <p className="text-[11px] text-slate-500">Free slots for MKT301</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {[
+                  ["Monday", ["08:00–10:00 · LT1", "14:00–16:00 · Hall A"]],
+                  ["Wednesday", ["10:00–12:00 · LT2", "16:00–18:00 · Room 101"]],
+                  ["Friday", ["08:00–10:00 · Hall B"]],
+                ].map(([day, chips]) => (
+                  <div key={day as string}>
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">{day}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(chips as string[]).map((c) => (
+                        <span key={c} className="rounded-lg border border-brand-200 bg-white px-2 py-1 text-[11px] font-medium text-brand-700">{c}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-brand-700 to-brand-500 px-8 py-12 text-center shadow-xl sm:px-16">

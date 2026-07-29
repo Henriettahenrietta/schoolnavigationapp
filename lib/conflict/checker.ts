@@ -3,13 +3,16 @@ import { prisma } from "../prisma";
 import { durationMinutes } from "../time";
 import {
   checkConflicts,
+  findFreeSlots,
   type ConflictResult,
   type ExistingAllocation,
   type SlotRequest,
   type Settings,
   type VenueInfo,
   type CourseInfo,
+  type FreeSlot,
 } from "./core";
+import { toMinutes, toHHMM } from "../time";
 
 // Accepts either the global client or a transaction client, so the same loaders work
 // inside a $transaction for race-safe final inserts.
@@ -124,4 +127,42 @@ export async function checkAllocation(request: SlotRequest, db: DB = prisma): Pr
     settings,
     lecturerWeeklyMinutes: weekly,
   });
+}
+
+/**
+ * The "Smart Assistant": list conflict-free slots for a course across the week, so a
+ * lecturer can pick a free day/time with one click. Powered by the same conflict engine.
+ */
+export async function listCourseFreeSlots(
+  sessionId: number,
+  courseId: number,
+  lecturerId: number,
+  durationMinutes = 120,
+  limit = 60,
+): Promise<FreeSlot[]> {
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    select: { id: true, code: true, title: true, departmentId: true, level: true, expectedStudents: true },
+  });
+  if (!course) return [];
+
+  const [settings, existing, venues] = await Promise.all([
+    loadSettings(),
+    loadExisting(sessionId),
+    loadVenues(),
+  ]);
+
+  const start = settings.dayStartTime;
+  const end = toHHMM(toMinutes(start) + durationMinutes);
+  const request: SlotRequest = {
+    sessionId,
+    courseId,
+    lecturerId,
+    venueId: venues[0]?.id ?? 0,
+    dayOfWeek: settings.workingDays[0] ?? "mon",
+    startTime: start,
+    endTime: end,
+  };
+
+  return findFreeSlots({ request, course: course as CourseInfo, existing, venues, settings, limit });
 }
