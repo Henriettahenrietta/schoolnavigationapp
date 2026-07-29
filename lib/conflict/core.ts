@@ -163,9 +163,12 @@ export function checkConflicts(args: {
     }
   }
 
-  // ---- 3. Venue conflict ----------------------------------------------------
+  // ---- 3. Venue conflict (department-scoped) --------------------------------
+  // A venue clash only blocks when the occupying class is in the SAME department, so two
+  // different departments may run at the same time. (Same lecturer is still blocked below,
+  // since one person cannot be in two places at once.)
   for (const e of clashing) {
-    if (e.venueId === request.venueId) {
+    if (e.venueId === request.venueId && e.departmentId === course.departmentId) {
       const free = freeVenuesAt(request, existing, venues, course)
         .map((v) => v.name)
         .slice(0, 4);
@@ -225,6 +228,7 @@ export function freeVenuesAt(
         (e) =>
           e.id !== request.excludeAllocationId &&
           e.dayOfWeek === request.dayOfWeek &&
+          e.departmentId === course.departmentId && // venue only "occupied" for the same department
           overlaps(request.startTime, request.endTime, e.startTime, e.endTime),
       )
       .map((e) => e.venueId),

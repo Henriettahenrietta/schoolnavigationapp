@@ -26,8 +26,9 @@ the same active session**, on the same day, that overlaps in time, and reports:
 1. **Class / student-group conflict** — same *department + level* (the students would have to
    be in two places at once). This is the primary scenario.
 2. **Lecturer conflict** — the same lecturer is already teaching.
-3. **Venue conflict** — the same hall/lab is already occupied. The system also lists the
-   **free venues** at that time.
+3. **Venue conflict (department-scoped)** — the same hall/lab is already occupied by a class
+   in the **same department**. Different departments may run at the same time, so only a
+   within-department venue overlap blocks; the system lists the **free venues** otherwise.
 4. **Policy violations** — outside the teaching-day window or a non-working day, `end ≤ start`,
    a duration that is not a multiple of the slot length, a duplicate of the same course, plus
    **soft** warnings (venue too small, lecturer over the weekly-hours cap) that an admin may

@@ -70,12 +70,23 @@ test("same lecturer double-booked is a lecturer clash", () => {
   assert.ok(r.conflicts.some((c) => c.type === "lecturer"));
 });
 
-console.log("\nVenue conflict");
-test("same venue occupied is a venue clash and suggests free venues", () => {
-  const occ: ExistingAllocation = { ...classOccupant, departmentId: 2, level: 200, lecturerId: 7, venueId: 1, venueName: "LT1" };
+console.log("\nVenue conflict (department-scoped)");
+test("same venue occupied by the SAME department is a venue clash", () => {
+  // same department (1), different level -> isolates venue conflict from class conflict
+  const occ: ExistingAllocation = { ...classOccupant, departmentId: 1, level: 200, lecturerId: 7, venueId: 1, venueName: "LT1" };
   const r = run({ venueId: 1, lecturerId: 9 }, [occ]);
   assert.ok(r.conflicts.some((c) => c.type === "venue"));
   assert.ok(/Free venues/.test(r.conflicts.find((c) => c.type === "venue")!.message));
+});
+test("same venue used by a DIFFERENT department at the same time does NOT clash", () => {
+  const occ: ExistingAllocation = { ...classOccupant, departmentId: 2, level: 200, lecturerId: 7, venueId: 1, venueName: "LT1" };
+  const r = run({ venueId: 1, lecturerId: 9 }, [occ]);
+  assert.equal(r.ok, true);
+});
+test("but the SAME lecturer at the same time still clashes, even across departments", () => {
+  const occ: ExistingAllocation = { ...classOccupant, departmentId: 2, level: 200, lecturerId: 9, venueId: 3, venueName: "Lab1" };
+  const r = run({ lecturerId: 9, venueId: 1 }, [occ]);
+  assert.ok(r.conflicts.some((c) => c.type === "lecturer"));
 });
 
 console.log("\nDuplicate (same course overlapping)");
