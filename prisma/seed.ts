@@ -1,8 +1,6 @@
 /**
  * Seed script — Yaounde International Business School (YIBS).
- * Creates the full set of business-school departments, each with programmes, courses and
- * lecturers, plus venues, an admin, availability, and a batch of conflict-free approved
- * allocations — leaving the rest for a live "Generate Timetable" demo.
+ * Uses the real YIBS departments and the real building venues (Block A floors + Block B).
  * Run with: npm run db:seed  (or npm run db:reset to rebuild from scratch).
  */
 import { PrismaClient } from "@prisma/client";
@@ -30,7 +28,7 @@ const BLOCKS: Array<[string, string]> = [
   ["16:00", "18:00"],
 ];
 
-// The YIBS departments. Each has four courses (one per level 100–400) and two lecturers.
+// The real YIBS departments, each with four courses (levels 100–400) and two lecturers.
 type DeptConfig = {
   code: string;
   name: string;
@@ -40,76 +38,40 @@ type DeptConfig = {
 
 const DEPARTMENTS: DeptConfig[] = [
   {
-    code: "ACC",
-    name: "Accounting",
-    titles: ["Financial Accounting", "Cost Accounting", "Management Accounting", "Auditing & Assurance"],
+    code: "MKT",
+    name: "Marketing",
+    titles: ["Principles of Marketing", "Consumer Behaviour", "Marketing Research", "Brand Management"],
     lecturers: ["Dr. Emmanuel Nkeng", "Dr. Estelle Fotso"],
   },
   {
-    code: "BFN",
-    name: "Banking and Finance",
-    titles: ["Principles of Banking", "Corporate Finance", "Investment Analysis", "International Finance"],
-    lecturers: ["Dr. Achille Mbarga", "Dr. Nadège Ngassa"],
-  },
-  {
-    code: "MKT",
-    name: "Marketing",
-    titles: ["Principles of Marketing", "Consumer Behaviour", "Digital Marketing", "Marketing Research"],
+    code: "DGM",
+    name: "Digital Marketing",
+    titles: ["Introduction to Digital Marketing", "Social Media Marketing", "SEO & Content Marketing", "Digital Analytics"],
     lecturers: ["Dr. Brice Tchoua", "Dr. Christelle Etonde"],
   },
   {
-    code: "MGT",
-    name: "Management",
-    titles: ["Principles of Management", "Organisational Behaviour", "Operations Management", "Strategic Management"],
-    lecturers: ["Prof. Rodrigue Njoya", "Dr. Sandrine Atangana"],
-  },
-  {
-    code: "HRM",
-    name: "Human Resource Management",
-    titles: ["Introduction to HRM", "Recruitment & Selection", "Performance Management", "Labour Relations"],
-    lecturers: ["Dr. Serge Mballa", "Dr. Mireille Mengue"],
-  },
-  {
-    code: "BUS",
-    name: "Business Administration",
-    titles: ["Business Communication", "Business Ethics", "Entrepreneurship", "Business Policy"],
+    code: "GRD",
+    name: "Graphic Design",
+    titles: ["Design Fundamentals", "Typography", "Illustration & Adobe Illustrator", "Brand Identity Design"],
     lecturers: ["Dr. Yannick Fombad", "Dr. Carine Ekwalla"],
   },
   {
-    code: "ECO",
-    name: "Economics",
-    titles: ["Microeconomics", "Macroeconomics", "Development Economics", "Econometrics"],
-    lecturers: ["Prof. Arnaud Nana", "Dr. Diane Kamdem"],
+    code: "MUL",
+    name: "Multimedia",
+    titles: ["Introduction to Multimedia", "Video Production", "Motion Graphics", "Interactive Media"],
+    lecturers: ["Dr. Landry Sona", "Dr. Gaelle Tabi"],
+  },
+  {
+    code: "MLS",
+    name: "Medical Laboratory Science",
+    titles: ["Human Anatomy & Physiology", "Clinical Chemistry", "Haematology", "Medical Microbiology"],
+    lecturers: ["Dr. Serge Mballa", "Dr. Mireille Mengue"],
   },
   {
     code: "CSC",
     name: "Computer Science",
-    titles: ["Introduction to Computing", "Database Systems", "Web Development", "Management Information Systems"],
-    lecturers: ["Dr. Landry Sona", "Dr. Gaelle Tabi"],
-  },
-  {
-    code: "LTM",
-    name: "Logistics and Transport Management",
-    titles: ["Introduction to Logistics", "Supply Chain Management", "Transport Economics", "Warehouse Management"],
+    titles: ["Introduction to Computing", "Data Structures", "Database Systems", "Web Development"],
     lecturers: ["Dr. Ulrich Ngu", "Dr. Sylvie Awa"],
-  },
-  {
-    code: "PMG",
-    name: "Project Management",
-    titles: ["Project Planning", "Risk Management", "Project Financing", "Agile Project Management"],
-    lecturers: ["Dr. Franck Fon", "Dr. Aurélie Tayong"],
-  },
-  {
-    code: "INS",
-    name: "Insurance",
-    titles: ["Principles of Insurance", "Risk & Insurance", "Life Assurance", "Reinsurance"],
-    lecturers: ["Dr. Boris Ndi", "Dr. Blaise Achu"],
-  },
-  {
-    code: "LAW",
-    name: "Business Law",
-    titles: ["Introduction to Law", "Commercial Law", "Company Law", "Labour Law"],
-    lecturers: ["Prof. Hervé Biya", "Dr. Cédric Fombad"],
   },
 ];
 
@@ -153,16 +115,22 @@ async function main() {
     data: { name: "2025/2026", semester: "first", isActive: true, isPublished: false, startDate: new Date("2025-09-15"), endDate: new Date("2026-01-30") },
   });
 
-  // Venues (8).
+  // Real YIBS venues (from the building layout: Block A floors + Block B).
   const venuesData = [
-    { name: "LT1", building: "Main Block", capacity: 300, type: "lecture_hall" },
-    { name: "LT2", building: "Main Block", capacity: 250, type: "lecture_hall" },
-    { name: "Hall A", building: "Business Complex", capacity: 200, type: "lecture_hall" },
-    { name: "Hall B", building: "Business Complex", capacity: 150, type: "lecture_hall" },
-    { name: "Room 101", building: "Annex", capacity: 90, type: "lecture_hall" },
-    { name: "Room 102", building: "Annex", capacity: 90, type: "lecture_hall" },
-    { name: "Computer Lab", building: "IT Building", capacity: 60, type: "lab" },
-    { name: "Seminar Room", building: "Annex", capacity: 50, type: "studio" },
+    { name: "Hall 1", building: "Block A · 1st floor", capacity: 150, type: "lecture_hall" },
+    { name: "Hall 2 (Graphics)", building: "Block A · 5th floor", capacity: 120, type: "lecture_hall" },
+    { name: "Conference Room", building: "Block A · 6th floor", capacity: 70, type: "lecture_hall" },
+    { name: "Computer Lab 1", building: "Block A · 1st floor", capacity: 45, type: "lab" },
+    { name: "Computer Lab 2 (Graphic Design)", building: "Block A · 5th floor", capacity: 45, type: "lab" },
+    { name: "Medical Lab", building: "Block A · 4th floor", capacity: 40, type: "lab" },
+    { name: "YIBS05", building: "Block A · 2nd floor", capacity: 60, type: "lecture_hall" },
+    { name: "YIBS06", building: "Block A · 2nd floor", capacity: 60, type: "lecture_hall" },
+    { name: "YIBS07", building: "Block A · 3rd floor", capacity: 60, type: "lecture_hall" },
+    { name: "YIBS08", building: "Block A · 3rd floor", capacity: 60, type: "lecture_hall" },
+    { name: "YIBS09", building: "Block A · 3rd floor", capacity: 60, type: "lecture_hall" },
+    { name: "YIBS011", building: "Block A · 4th floor", capacity: 60, type: "lecture_hall" },
+    { name: "YIBS012", building: "Block A · 4th floor", capacity: 60, type: "lecture_hall" },
+    { name: "YIBS017", building: "Block A · Basement", capacity: 60, type: "lecture_hall" },
   ];
   const venues = [];
   for (const v of venuesData) venues.push(await prisma.venue.create({ data: v }));
@@ -172,7 +140,6 @@ async function main() {
     data: { name: "System Administrator", email: "admin@cas.test", passwordHash: await bcrypt.hash(PASSWORD, 10), role: "admin", isActive: true },
   });
 
-  // Departments, lecturers, availability, courses.
   type SeedCourse = { id: number; departmentId: number; level: number; expectedStudents: number };
   const courses: SeedCourse[] = [];
   const lecturersByDept = new Map<number, number[]>();
@@ -186,7 +153,6 @@ async function main() {
       await prisma.programme.create({ data: { departmentId: d.id, name: `${dept.name} ${level} Level`, level } });
     }
 
-    // Two lecturers per department.
     const lecIds: number[] = [];
     for (let i = 0; i < dept.lecturers.length; i++) {
       const name = dept.lecturers[i];
@@ -203,10 +169,9 @@ async function main() {
     }
     lecturersByDept.set(d.id, lecIds);
 
-    // Four courses (one per level).
     for (let i = 0; i < LEVELS.length; i++) {
       const level = LEVELS[i];
-      const expectedStudents = level === 100 ? 180 : level === 200 ? 130 : level === 300 ? 80 : 45;
+      const expectedStudents = level === 100 ? 80 : level === 200 ? 55 : level === 300 ? 40 : 28;
       const c = await prisma.course.create({
         data: {
           code: `${dept.code}${level + 1}`, title: dept.titles[i], creditUnits: 2,
@@ -218,8 +183,8 @@ async function main() {
   }
   await prisma.lecturerAvailability.createMany({ data: availabilityRows });
 
-  // ~24 conflict-free approved allocations (2 per department), spread round-robin so every
-  // department appears in the initial timetable; the rest stay unallocated for the demo.
+  // ~12 conflict-free approved allocations, spread round-robin across departments; the rest
+  // are left unallocated for the generator / self-service demo.
   type Placed = { departmentId: number; level: number; lecturerId: number; venueId: number; day: string; start: string; end: string };
   const placed: Placed[] = [];
   const clashes = (cand: Placed) =>
@@ -227,12 +192,14 @@ async function main() {
       (p) =>
         p.day === cand.day &&
         overlaps(p.start, p.end, cand.start, cand.end) &&
-        ((p.departmentId === cand.departmentId && p.level === cand.level) || p.lecturerId === cand.lecturerId || p.venueId === cand.venueId),
+        // department-scoped venue rule: a venue only clashes within the same department
+        ((p.departmentId === cand.departmentId && p.level === cand.level) ||
+          p.lecturerId === cand.lecturerId ||
+          (p.venueId === cand.venueId && p.departmentId === cand.departmentId)),
     );
 
-  // Round-robin ordering: level 100 of every dept first, then 200, etc.
   const ordered = [...courses].sort((a, b) => a.level - b.level || a.departmentId - b.departmentId);
-  const target = 24;
+  const target = 12;
   const allocationRows: any[] = [];
   let allocated = 0;
   for (const course of ordered) {
@@ -261,8 +228,8 @@ async function main() {
   await prisma.allocation.createMany({ data: allocationRows });
 
   console.log("Seed complete (Yaounde International Business School):");
-  console.log(`  departments: ${DEPARTMENTS.length}`);
-  console.log(`  venues:      ${venues.length}`);
+  console.log(`  departments: ${DEPARTMENTS.length}  (${DEPARTMENTS.map((d) => d.code).join(", ")})`);
+  console.log(`  venues:      ${venues.length}  (real YIBS rooms)`);
   console.log(`  courses:     ${courses.length}`);
   console.log(`  lecturers:   ${DEPARTMENTS.length * 2} (+ 1 admin)`);
   console.log(`  allocations: ${allocated} approved (conflict-free)`);
