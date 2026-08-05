@@ -35,6 +35,12 @@ function withTimeouts(url: string | undefined): string | undefined {
   for (const [param, value] of [
     ["connect_timeout", "20"],
     ["pool_timeout", "20"],
+    // Prisma's default pool is num_cpus * 2 + 1, which is 5 here. A single page issues
+    // several queries at once, and while the link is down each one holds its slot for
+    // the full connect_timeout — so the pool empties and the real "can't reach the
+    // database" error surfaces as a confusing pool timeout instead. Neon's -pooler
+    // endpoint does the actual server-side pooling, so a larger client pool is cheap.
+    ["connection_limit", "10"],
   ]) {
     if (!new RegExp(`[?&]${param}=`).test(out)) {
       out += (out.includes("?") ? "&" : "?") + `${param}=${value}`;
