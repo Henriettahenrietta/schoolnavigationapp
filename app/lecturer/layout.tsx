@@ -7,6 +7,7 @@ import {
   IconCalendar,
   IconBell,
   IconSpark,
+  IconBuilding,
 } from "@/components/icons";
 
 // Lecturer area layout. The request/timetable/notifications pages are flipped live in
@@ -16,7 +17,11 @@ export default async function LecturerLayout({ children }: { children: React.Rea
 
   const nav: NavGroup[] = [
     {
-      items: [{ href: "/lecturer", label: "Dashboard", icon: <IconHome />, exact: true }],
+      items: [
+        { href: "/lecturer", label: "Dashboard", icon: <IconHome />, exact: true },
+        // A lecturer may teach across departments, so this lists all of them at once.
+        { href: "/lecturer/departments", label: "My departments", icon: <IconBuilding /> },
+      ],
     },
     {
       title: "Allocations",

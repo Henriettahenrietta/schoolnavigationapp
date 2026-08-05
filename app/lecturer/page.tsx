@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/current-user";
 import { StatCard } from "@/components/stat-card";
@@ -33,7 +34,10 @@ export default async function LecturerDashboard() {
           Hello, {user.name.split(" ").slice(-1)[0]}
         </h1>
         <p className="mt-1 text-slate-500">
-          {user.department ? user.department.name : "No department"} ·{" "}
+          <Link href="/lecturer/departments" className="font-medium text-brand-600 hover:text-brand-700">
+            {user.department ? user.department.name : "No department"}
+          </Link>{" "}
+          ·{" "}
           {session ? (
             <>
               Session <Badge variant="blue">{session.name}</Badge>
