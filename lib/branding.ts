@@ -3,6 +3,9 @@ export const SCHOOL_NAME = "Yaounde International Business School";
 export const SCHOOL_SHORT = "YIBS";
 export const APP_NAME = "Course Allocation System";
 export const APP_FULL = `${SCHOOL_SHORT} ${APP_NAME}`;
+// Product name shown in the signed-in workspace chrome.
+export const PRODUCT_NAME = "SmartAllocate";
+export const PRODUCT_FULL = `${SCHOOL_SHORT} ${PRODUCT_NAME}`;
 
 // Brand assets live in public/brand — see the README there for how to swap them.
 export const LOGO_SRC = "/brand/yibs-logo.svg";

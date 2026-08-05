@@ -54,6 +54,28 @@ export async function assertAdmin() {
   return user;
 }
 
+/**
+ * Server-action guard for the HOD area. A Head only ever acts inside their own
+ * department, so this returns a non-null `departmentId` alongside the user and every
+ * HOD mutation scopes its queries by it. A HOD with no department is rejected rather
+ * than silently given access to everything.
+ */
+export async function assertHod() {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "hod") throw new Error("Unauthorized: HOD access required");
+  if (user.departmentId == null) throw new Error("Your account is not attached to a department.");
+  return { user, departmentId: user.departmentId };
+}
+
+/**
+ * Page-level equivalent of assertHod: redirects rather than throws. Returns null for
+ * `departmentId` so pages can render a helpful empty state instead of crashing.
+ */
+export async function requireHod() {
+  const user = await requireRole("hod");
+  return { user, departmentId: user.departmentId };
+}
+
 export function homePathForRole(role: Role): string {
   switch (role) {
     case "admin":

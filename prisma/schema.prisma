@@ -48,9 +48,10 @@ model Department {
   name String
   code String @unique
 
-  users      User[]
-  programmes Programme[]
-  courses    Course[]
+  users          User[]
+  programmes     Programme[]
+  courses        Course[]
+  generationRuns GenerationRun[]
 }
 
 model Programme {
@@ -170,6 +171,9 @@ model GenerationRun {
   id              Int      @id @default(autoincrement())
   sessionId       Int
   runById         Int
+  // Null for an admin's whole-institution run; set when a HOD regenerates just their
+  // own department, so concurrent department drafts never overwrite each other.
+  departmentId    Int?
   mode            String // full | fill
   randomSeed      Int?
   coursesTotal    Int      @default(0)
@@ -183,9 +187,11 @@ model GenerationRun {
 
   session     Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   runBy       User         @relation("RunBy", fields: [runById], references: [id])
+  department  Department?  @relation(fields: [departmentId], references: [id])
   allocations Allocation[]
 
   @@index([sessionId])
+  @@index([departmentId])
 }
 
 model Notification {

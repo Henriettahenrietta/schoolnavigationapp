@@ -38,8 +38,17 @@ export async function acceptRun(formData: FormData) {
   await prisma.$transaction(async (tx) => {
     if (run.mode === "full") {
       // Rebuild-from-scratch: clear non-locked allocations not belonging to this run.
+      // The OR is load-bearing: `{ not: run.id }` alone silently keeps manually created
+      // rows, whose generationRunId is NULL, because SQL `NULL <> id` is not true. Those
+      // survivors are not constraints during a full run, so leaving them behind produces
+      // an accepted timetable that double-books them against the generated classes.
       await tx.allocation.deleteMany({
-        where: { sessionId: run.sessionId, isLocked: false, generationRunId: { not: run.id }, status: { in: ["approved", "pending", "draft"] } },
+        where: {
+          sessionId: run.sessionId,
+          isLocked: false,
+          status: { in: ["approved", "pending", "draft"] },
+          OR: [{ generationRunId: null }, { generationRunId: { not: run.id } }],
+        },
       });
     }
     await tx.allocation.updateMany({

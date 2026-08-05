@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { NavLink, type NavItem } from "./nav-link";
 import { IconLogout } from "./icons";
-import { SCHOOL_SHORT } from "@/lib/branding";
+import { SCHOOL_SHORT, PRODUCT_FULL } from "@/lib/branding";
 import { BrandLogo } from "./brand-logo";
 
 export type { NavItem };
@@ -52,7 +52,7 @@ export function DashboardShell({
       <aside className="no-print hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white md:flex">
         <div className="flex h-16 items-center gap-2.5 border-b border-slate-100 px-5">
           <BrandLogo size={34} />
-          <span className="font-semibold text-slate-800">{SCHOOL_SHORT} Timetable</span>
+          <span className="font-semibold text-slate-800">{PRODUCT_FULL}</span>
         </div>
         <nav className="flex-1 overflow-y-auto p-3">{groups}</nav>
         <div className="border-t border-slate-100 p-3">

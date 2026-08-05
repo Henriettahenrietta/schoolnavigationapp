@@ -1,17 +1,26 @@
 import { prisma } from "@/lib/prisma";
-import { requireRole } from "@/lib/auth/current-user";
+import { requireHod } from "@/lib/auth/current-user";
 import { loadSettings } from "@/lib/conflict/checker";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody, CardHeader, Field, Select, Input, Alert, Badge, Button } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
 import { StatCard } from "@/components/stat-card";
 import { TimetableGrid, type GridAllocation } from "@/components/timetable-grid";
-import { generateAction, acceptRun, discardRun, rollbackRun } from "./actions";
+import { NoDepartment } from "../no-department";
+import {
+  generateForDepartment,
+  acceptDepartmentRun,
+  discardDepartmentRun,
+  rollbackDepartmentRun,
+} from "./actions";
 
-export default async function GeneratePage() {
-  await requireRole("admin");
+export const dynamic = "force-dynamic";
+
+export default async function HodGeneratePage() {
+  const { departmentId } = await requireHod();
+  if (departmentId == null) return <NoDepartment title="Generate timetable" />;
+
   const session = await prisma.session.findFirst({ where: { isActive: true } });
-
   if (!session) {
     return (
       <div>
@@ -22,10 +31,10 @@ export default async function GeneratePage() {
   }
 
   const settings = await loadSettings();
-  // departmentId null keeps this to the admin's institution-wide runs; HOD runs are
-  // scoped to their own department and shown on /hod/generate.
+  const department = await prisma.department.findUnique({ where: { id: departmentId } });
+
   const latest = await prisma.generationRun.findFirst({
-    where: { sessionId: session.id, departmentId: null },
+    where: { sessionId: session.id, departmentId },
     orderBy: { createdAt: "desc" },
     include: { runBy: { select: { name: true } } },
   });
@@ -45,30 +54,42 @@ export default async function GeneratePage() {
   const unplaced: { code: string; reason: string }[] = draft ? JSON.parse(draft.unplacedReport || "[]") : [];
 
   const acceptedRuns = await prisma.generationRun.findMany({
-    where: { sessionId: session.id, status: "accepted", departmentId: null },
+    where: { sessionId: session.id, status: "accepted", departmentId },
     orderBy: { createdAt: "desc" },
     take: 1,
+  });
+
+  const unscheduled = await prisma.course.count({
+    where: {
+      sessionId: session.id,
+      departmentId,
+      allocations: { none: { status: { in: ["approved", "pending"] } } },
+    },
   });
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Generate timetable"
-        subtitle="Automatically place unallocated courses into conflict-free slots, then review before publishing."
+        subtitle={`${department?.name ?? "Your department"}. Places your department's courses into conflict-free slots without disturbing other departments.`}
       />
 
-      {/* Run controls */}
       <Card>
         <CardHeader>
           <h2 className="font-semibold text-slate-800">{draft ? "Regenerate" : "Run the generator"}</h2>
         </CardHeader>
         <CardBody>
-          <form action={generateAction} className="flex flex-wrap items-end gap-4">
-            <div className="w-40">
+          <p className="mb-4 text-sm text-slate-500">
+            {unscheduled === 0
+              ? "Every course in your department is already scheduled. A full rebuild will reshuffle them."
+              : `${unscheduled} course${unscheduled === 1 ? "" : "s"} in your department ${unscheduled === 1 ? "has" : "have"} no class scheduled yet.`}
+          </p>
+          <form action={generateForDepartment} className="flex flex-wrap items-end gap-4">
+            <div className="w-56">
               <Field label="Mode">
                 <Select name="mode" defaultValue="fill">
-                  <option value="fill">Fill (unallocated only)</option>
-                  <option value="full">Full (rebuild all)</option>
+                  <option value="fill">Fill (unscheduled only)</option>
+                  <option value="full">Full (rebuild my department)</option>
                 </Select>
               </Field>
             </div>
@@ -86,7 +107,6 @@ export default async function GeneratePage() {
         </CardBody>
       </Card>
 
-      {/* Draft result */}
       {draft && (
         <>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -102,11 +122,11 @@ export default async function GeneratePage() {
           </Alert>
 
           <div className="flex flex-wrap gap-2">
-            <form action={acceptRun}>
+            <form action={acceptDepartmentRun}>
               <input type="hidden" name="runId" value={draft.id} />
               <SubmitButton pendingLabel="Accepting…">Accept &amp; approve</SubmitButton>
             </form>
-            <form action={discardRun}>
+            <form action={discardDepartmentRun}>
               <input type="hidden" name="runId" value={draft.id} />
               <Button type="submit" variant="secondary">Discard</Button>
             </form>
@@ -128,7 +148,7 @@ export default async function GeneratePage() {
               <Card>
                 <CardBody>
                   {unplaced.length === 0 ? (
-                    <p className="text-sm text-slate-400">All courses placed. 🎉</p>
+                    <p className="text-sm text-slate-400">All courses placed.</p>
                   ) : (
                     <ul className="space-y-2 text-sm">
                       {unplaced.map((u, i) => (
@@ -146,11 +166,11 @@ export default async function GeneratePage() {
         </>
       )}
 
-      {/* Rollback of the last accepted run */}
       {!draft && acceptedRuns[0] && (
         <Alert variant="info" title="Last accepted run">
-          Run #{acceptedRuns[0].id} placed {acceptedRuns[0].coursesPlaced} courses.
-          <form action={rollbackRun} className="mt-2">
+          Run #{acceptedRuns[0].id} placed {acceptedRuns[0].coursesPlaced} course
+          {acceptedRuns[0].coursesPlaced === 1 ? "" : "s"} in your department.
+          <form action={rollbackDepartmentRun} className="mt-2">
             <input type="hidden" name="runId" value={acceptedRuns[0].id} />
             <Button type="submit" variant="outline">Roll back this run</Button>
           </form>
