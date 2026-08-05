@@ -15,7 +15,7 @@ Built with **Next.js 14 (App Router) · Prisma · PostgreSQL (Neon) · Tailwind 
 
 **Admin**
 - CRUD for sessions, departments, programmes, courses, venues, lecturers and system settings
-- Approve / reject (with reason) / **override** allocation requests — every override logged
+- Approve / reject (with reason) / **override** allocation requests, with every override logged
 - **One-click automatic timetable generation** (fill or full mode, repeatable by seed) with a
   draft preview, unplaced-courses report, accept / discard / roll back
 - **Master timetable** grid with filters (department, level, venue, lecturer, day)
@@ -27,13 +27,13 @@ Built with **Next.js 14 (App Router) · Prisma · PostgreSQL (Neon) · Tailwind 
 - View own timetable and weekly workload, track request history, manage availability
 - In-app notifications on approval / rejection / override
 
-**Public** — no login: pick a department + level and view the **published** class timetable (printable).
+**Public** (no login): pick a department + level and view the **published** class timetable (printable).
 
 ## The two core engines
 
-- **`AllocationConflictChecker`** (`lib/conflict/`) — the interval-overlap rule plus the four
+- **`AllocationConflictChecker`** (`lib/conflict/`): the interval-overlap rule plus the four
   conflict types (class, lecturer, venue, policy) and free-slot suggestions.
-- **`TimetableGenerator`** (`lib/generator/`) — greedy placement, most-constrained-first
+- **`TimetableGenerator`** (`lib/generator/`): greedy placement, most-constrained-first
   ordering, deterministic by seed, self-audits to zero conflicts.
 
 Both share the **exact same checking code**, so manual submissions and generated placements
@@ -55,9 +55,9 @@ Copy `.env.example` to `.env` and fill in your own values (`.env` is git-ignored
 cp .env.example .env
 ```
 
-- `DATABASE_URL` / `DIRECT_URL` — Neon pooled and direct connection strings.
-- `SESSION_SECRET` — any long random string.
-- `CLOUDINARY_*` — from your Cloudinary dashboard (upload preset: `allocation`).
+- `DATABASE_URL` / `DIRECT_URL`: Neon pooled and direct connection strings.
+- `SESSION_SECRET`: any long random string.
+- `CLOUDINARY_*`: from your Cloudinary dashboard (upload preset: `allocation`).
 
 ## Setup
 
@@ -80,7 +80,7 @@ Wipe & rebuild the database at any time: `npm run db:reset`.
 All six seeded lecturers use `password`. The public timetable at `/timetable` needs no login.
 
 The seed creates 1 active session (**2025/2026**), 3 departments, 8 venues, 40 courses, 6
-lecturers with availability, and 20 approved allocations — leaving 20 unallocated for a live
+lecturers with availability, and 20 approved allocations, leaving 20 unallocated for a live
 **Generate Timetable** demo.
 
 ## Tests
@@ -116,10 +116,10 @@ DEFENSE_DEMO.md          step-by-step defense walkthrough
 
 ## Deliverables
 
-- **ER diagram + use-case list** — [docs/ER-diagram.md](docs/ER-diagram.md)
+- **ER diagram + use-case list**: [docs/ER-diagram.md](docs/ER-diagram.md)
 - **Methodology write-up** (overlap rule, conflict types, heuristics, NP-hardness, complexity,
-  flowchart) — [docs/METHODOLOGY.md](docs/METHODOLOGY.md)
-- **Defense demo script** — [DEFENSE_DEMO.md](DEFENSE_DEMO.md)
+  flowchart): [docs/METHODOLOGY.md](docs/METHODOLOGY.md)
+- **Defense demo script**: [DEFENSE_DEMO.md](DEFENSE_DEMO.md)
 
 ## Security & resilience notes
 
@@ -132,8 +132,8 @@ DEFENSE_DEMO.md          step-by-step defense walkthrough
 
 ## Troubleshooting
 
-- **`@prisma/client` did not initialize** — run `npx prisma generate`.
-- **Want a clean slate** — `npm run db:reset`.
-- **Port 3000 in use** — `npm run dev -- -p 3001`.
-- **"Can't reach database server"** — a transient link blip to Neon; the client retries, or
+- **`@prisma/client` did not initialize**: run `npx prisma generate`.
+- **Want a clean slate**: `npm run db:reset`.
+- **Port 3000 in use**: `npm run dev -- -p 3001`.
+- **"Can't reach database server"**: a transient link blip to Neon; the client retries, or
   just refresh. A stable network is recommended for the live defense.

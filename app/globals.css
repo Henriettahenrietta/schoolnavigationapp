@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #f7f8fb;
+  /* YIBS surfaces: soft grey page, near-black text. */
+  --background: #f8f9fa;
   --foreground: #0f172a;
 }
 

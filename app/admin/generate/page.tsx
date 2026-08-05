@@ -71,7 +71,7 @@ export default async function GeneratePage() {
               </Field>
             </div>
             <div className="w-40">
-              <Field label="Random seed" hint="Optional — repeatable runs.">
+              <Field label="Random seed" hint="Optional. Makes runs repeatable.">
                 <Input name="seed" type="number" placeholder="e.g. 42" />
               </Field>
             </div>

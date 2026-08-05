@@ -2,6 +2,7 @@ import Link from "next/link";
 import { NavLink, type NavItem } from "./nav-link";
 import { IconLogout } from "./icons";
 import { SCHOOL_SHORT } from "@/lib/branding";
+import { BrandLogo } from "./brand-logo";
 
 export type { NavItem };
 export type NavGroup = { title?: string; items: NavItem[] };
@@ -49,10 +50,8 @@ export function DashboardShell({
     <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
       <aside className="no-print hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white md:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-slate-100 px-5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs font-bold text-white">
-            {SCHOOL_SHORT}
-          </span>
+        <div className="flex h-16 items-center gap-2.5 border-b border-slate-100 px-5">
+          <BrandLogo size={34} />
           <span className="font-semibold text-slate-800">{SCHOOL_SHORT} Timetable</span>
         </div>
         <nav className="flex-1 overflow-y-auto p-3">{groups}</nav>
@@ -82,9 +81,7 @@ export function DashboardShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="no-print sticky top-0 z-10 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-4 backdrop-blur md:px-8">
           <div className="flex items-center gap-2 md:hidden">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs font-bold text-white">
-              {SCHOOL_SHORT}
-            </span>
+            <BrandLogo size={32} />
             <span className="font-semibold text-slate-800">{SCHOOL_SHORT}</span>
           </div>
           <div className="hidden text-sm text-slate-500 md:block">{roleLabel} workspace</div>

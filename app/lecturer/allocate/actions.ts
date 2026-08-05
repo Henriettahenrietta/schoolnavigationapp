@@ -99,7 +99,7 @@ export async function instantAllocate(
     };
   } catch (e: any) {
     if (e?.result) {
-      return { declined: true, message: "That slot clashes — see the details.", conflicts: e.result.conflicts, suggestions: e.result.suggestions };
+      return { declined: true, message: "That slot clashes. See the details.", conflicts: e.result.conflicts, suggestions: e.result.suggestions };
     }
     return { error: "Could not allocate. Please try again." };
   }

@@ -68,7 +68,7 @@ export function AllocationsManager({
     <>
       <PageHeader
         title="Manage classes"
-        subtitle="Add a class, replace a lecturer, or move a slot — every change is conflict-checked."
+        subtitle="Add a class, replace a lecturer, or move a slot. Every change is conflict-checked."
         action={<Button onClick={openAdd}>+ Add class</Button>}
       />
 
@@ -84,7 +84,7 @@ export function AllocationsManager({
           ) : (
             rows.map((r) => (
               <TR key={r.id}>
-                <TD className="font-medium text-slate-800">{r.courseCode} — {r.courseTitle}</TD>
+                <TD className="font-medium text-slate-800">{r.courseCode} · {r.courseTitle}</TD>
                 <TD>{r.lecturerName}</TD>
                 <TD>{DAY_LABELS[r.dayOfWeek as keyof typeof DAY_LABELS] ?? r.dayOfWeek}</TD>
                 <TD>{r.startTime}–{r.endTime}</TD>
@@ -133,7 +133,7 @@ export function AllocationsManager({
           <Field label="Course" htmlFor="courseId">
             <Select id="courseId" name="courseId" required value={courseId} onChange={(e) => setCourseId(e.target.value)}>
               <option value="" disabled>Select a course…</option>
-              {courses.map((c) => (<option key={c.id} value={c.id}>{c.code} — {c.title} ({c.departmentName})</option>))}
+              {courses.map((c) => (<option key={c.id} value={c.id}>{c.code} · {c.title} ({c.departmentName})</option>))}
             </Select>
           </Field>
           <Field label="Lecturer" htmlFor="lecturerId" hint="Change this to replace the teacher.">

@@ -1,4 +1,4 @@
-# Course Allocation System — Entity-Relationship Diagram
+# Course Allocation System: Entity-Relationship Diagram
 
 Database: **PostgreSQL** (Neon, via Prisma). Times are stored as `HH:MM` strings; enum-like
 columns are `String` with allowed values enforced by the Zod layer (`lib/validation.ts`).

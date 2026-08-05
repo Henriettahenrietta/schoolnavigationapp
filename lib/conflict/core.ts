@@ -148,7 +148,7 @@ export function checkConflicts(args: {
     if (e.departmentId === course.departmentId && e.level === course.level && e.courseId !== course.id) {
       conflicts.push({
         type: "class",
-        message: `Declined — ${fmt(e.dayOfWeek, e.startTime, e.endTime)} is already allocated to ${e.courseCode} (${e.courseTitle}) taught by ${e.lecturerName} in ${e.venueName} for ${course.level} Level.`,
+        message: `Declined: ${fmt(e.dayOfWeek, e.startTime, e.endTime)} is already allocated to ${e.courseCode} (${e.courseTitle}) taught by ${e.lecturerName} in ${e.venueName} for ${course.level} Level.`,
       });
     }
   }
@@ -158,7 +158,7 @@ export function checkConflicts(args: {
     if (e.lecturerId === request.lecturerId) {
       conflicts.push({
         type: "lecturer",
-        message: `Declined — this lecturer already teaches ${e.courseCode} on ${fmt(e.dayOfWeek, e.startTime, e.endTime)} in ${e.venueName}.`,
+        message: `Declined: this lecturer already teaches ${e.courseCode} on ${fmt(e.dayOfWeek, e.startTime, e.endTime)} in ${e.venueName}.`,
       });
     }
   }
@@ -175,7 +175,7 @@ export function checkConflicts(args: {
       const freeMsg = free.length ? ` Free venues at that time: ${free.join(", ")}.` : "";
       conflicts.push({
         type: "venue",
-        message: `Declined — ${e.venueName} is occupied by ${e.courseCode} (${e.lecturerName}) on ${fmt(e.dayOfWeek, e.startTime, e.endTime)}.${freeMsg}`,
+        message: `Declined: ${e.venueName} is occupied by ${e.courseCode} (${e.lecturerName}) on ${fmt(e.dayOfWeek, e.startTime, e.endTime)}.${freeMsg}`,
       });
     }
   }
@@ -185,7 +185,7 @@ export function checkConflicts(args: {
     if (e.courseId === course.id) {
       conflicts.push({
         type: "duplicate",
-        message: `Declined — ${course.code} already has an allocation on ${fmt(e.dayOfWeek, e.startTime, e.endTime)}.`,
+        message: `Declined: ${course.code} already has an allocation on ${fmt(e.dayOfWeek, e.startTime, e.endTime)}.`,
       });
     }
   }

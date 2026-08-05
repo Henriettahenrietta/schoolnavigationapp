@@ -32,7 +32,7 @@ export default async function AllocatePage() {
     <div>
       <PageHeader
         title="Allocate my course"
-        subtitle="Instant self-service allocation — free slots are approved on the spot."
+        subtitle="Instant self-service allocation. Free slots are approved on the spot."
       />
       <AllocateForm courses={courses} venues={venues} />
     </div>

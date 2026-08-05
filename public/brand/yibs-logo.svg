@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 290" role="img" aria-label="YIBS crest">
+  <title>Yaounde International Business School</title>
+
+  <!-- Laurel wreath. One leaf is defined once and repeated around the centre. -->
+  <defs>
+    <g id="yibs-leaf">
+      <ellipse cx="46" cy="152" rx="18" ry="8.5" transform="rotate(-38 46 152)" />
+    </g>
+    <g id="yibs-branch">
+      <use href="#yibs-leaf" transform="rotate(-66 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(-53 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(-40 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(-27 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(-14 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(-1 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(12 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(25 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(38 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(51 160 152)" />
+      <use href="#yibs-leaf" transform="rotate(64 160 152)" />
+    </g>
+  </defs>
+
+  <g fill="#9ca3af">
+    <use href="#yibs-branch" />
+    <use href="#yibs-branch" transform="translate(320 0) scale(-1 1)" />
+  </g>
+
+  <!-- Shield -->
+  <path
+    fill="#29abe2"
+    d="M100 62q0-7 8-7h104q8 0 8 7v78c0 40-30 62-60 74-30-12-60-34-60-74z"
+  />
+
+  <!-- White quartering: two horizontal bands framing the wordmark, plus a vertical bar
+       through the upper and lower halves only. -->
+  <g fill="#ffffff">
+    <rect x="100" y="101" width="120" height="8" />
+    <rect x="100" y="141" width="120" height="8" />
+    <rect x="156" y="55" width="8" height="46" />
+    <path d="M156 149h8v58q-4 3-8 6z" />
+  </g>
+
+  <!-- Top-left quadrant: open book -->
+  <g fill="#ffffff">
+    <path d="M112 90V74q7-5 15-1v16q-8-4-15 1z" />
+    <path d="M148 90V74q-7-5-15-1v16q8-4 15 1z" />
+  </g>
+
+  <!-- Top-right quadrant: key -->
+  <g fill="#ffffff">
+    <path d="M182 72a10 10 0 1 1 20 0 10 10 0 0 1-20 0zm10-4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
+    <path d="M189 80h6v18h-6z" />
+    <path d="M195 86h8v5h-8zM195 92h6v5h-6z" />
+  </g>
+
+  <!-- Bottom-left quadrant: two stars -->
+  <g fill="#ffffff">
+    <path d="m120 162 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" />
+    <path d="m142 162 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" />
+  </g>
+
+  <!-- Bottom-right quadrant: globe -->
+  <g fill="none" stroke="#ffffff" stroke-width="3">
+    <circle cx="192" cy="171" r="15" />
+    <ellipse cx="192" cy="171" rx="6.5" ry="15" />
+    <path d="M177.5 171h29M180 162h24M180 180h24" />
+  </g>
+
+  <!-- Wordmark -->
+  <text
+    x="160"
+    y="133"
+    fill="#ffffff"
+    text-anchor="middle"
+    font-family="Segoe UI, Arial, Helvetica, sans-serif"
+    font-size="27"
+    font-weight="700"
+    letter-spacing="2.5"
+  >YIBS</text>
+</svg>

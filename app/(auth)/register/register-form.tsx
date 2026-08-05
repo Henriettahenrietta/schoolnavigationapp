@@ -32,10 +32,10 @@ export function RegisterForm({
         ) : null}
         <form action={formAction}>
           <Field label="Full name" htmlFor="name" error={fe.name}>
-            <Input id="name" name="name" placeholder="Dr. Jane Doe" required />
+            <Input id="name" name="name" placeholder="Henrietta Insange" required />
           </Field>
           <Field label="Email" htmlFor="email" error={fe.email}>
-            <Input id="email" name="email" type="email" placeholder="jane.doe@cas.test" required />
+            <Input id="email" name="email" type="email" placeholder="henrietta.insange@yibs.test" required />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Staff ID" htmlFor="staffId" error={fe.staffId}>

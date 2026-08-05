@@ -65,7 +65,7 @@ export default async function LecturerDashboard() {
               {allocations.map((a) => (
                 <li key={a.id} className="flex items-center justify-between py-2.5">
                   <span className="font-medium text-slate-800">
-                    {a.course.code} — {a.course.title}
+                    {a.course.code} · {a.course.title}
                   </span>
                   <span className="flex items-center gap-3 text-slate-500">
                     <span className="uppercase">{a.dayOfWeek}</span>

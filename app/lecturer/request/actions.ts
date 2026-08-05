@@ -66,7 +66,7 @@ export async function submitAllocationRequest(
   } catch (e: any) {
     if (e?.result) {
       return {
-        error: "This slot clashes — see the details below.",
+        error: "This slot clashes. See the details below.",
         conflicts: e.result.conflicts,
         suggestions: e.result.suggestions,
       };

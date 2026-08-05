@@ -28,7 +28,7 @@ export default async function RequestsPage() {
       {pending.length > 0 && (
         <Alert variant="info" className="mb-4">
           {pending.length} request{pending.length === 1 ? "" : "s"} awaiting review. Approve is
-          blocked if a request now clashes — use Override to force it through.
+          blocked if a request now clashes. Use Override to force it through.
         </Alert>
       )}
 
@@ -51,7 +51,7 @@ export default async function RequestsPage() {
             pending.map((a) => (
               <TR key={a.id}>
                 <TD className="font-medium text-slate-800">
-                  {a.course.code} — {a.course.title}
+                  {a.course.code} · {a.course.title}
                   <span className="ml-2 align-middle">
                     <Badge variant="blue">{a.course.level} L</Badge>
                   </span>

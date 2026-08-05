@@ -58,7 +58,7 @@ export async function uploadImage(
   const { cloudName, apiKey, uploadPreset } = cloudinaryConfig();
   if (!isCloudinaryConfigured()) {
     throw new Error(
-      "Cloudinary is not fully configured — set CLOUDINARY_CLOUD_NAME (and API key/secret) in .env",
+      "Cloudinary is not fully configured. Set CLOUDINARY_CLOUD_NAME (and API key/secret) in .env",
     );
   }
 

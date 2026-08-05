@@ -72,7 +72,7 @@ export async function saveAllocation(_prev: AllocState, formData: FormData): Pro
       }
     });
   } catch (e: any) {
-    if (e?.result) return { error: "This slot clashes — see below.", conflicts: e.result.conflicts, suggestions: e.result.suggestions };
+    if (e?.result) return { error: "This slot clashes. See below.", conflicts: e.result.conflicts, suggestions: e.result.suggestions };
     return { error: "Could not save the class." };
   }
 

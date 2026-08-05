@@ -6,7 +6,8 @@ import { PrintButton } from "@/components/print-button";
 import { PrintHeader } from "@/components/print-header";
 import { TimetableGrid, type GridAllocation } from "@/components/timetable-grid";
 import { LEVELS } from "@/lib/constants";
-import { SCHOOL_NAME, SCHOOL_SHORT } from "@/lib/branding";
+import { SCHOOL_NAME } from "@/lib/branding";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ export default async function PublicTimetablePage({
       <header className="no-print border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs font-bold text-white">{SCHOOL_SHORT}</span>
+            <BrandLogo size={34} />
             <span className="font-semibold text-slate-800">{SCHOOL_NAME}</span>
           </Link>
           <Link href="/login" className="text-sm font-medium text-brand-600 hover:text-brand-700">Staff sign in</Link>
@@ -59,7 +60,7 @@ export default async function PublicTimetablePage({
         />
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            {session ? `${session.name} — ${session.semester} semester` : "Timetable"}
+            {session ? `${session.name} · ${session.semester} semester` : "Timetable"}
           </h1>
           {grid.length > 0 && <PrintButton />}
         </div>

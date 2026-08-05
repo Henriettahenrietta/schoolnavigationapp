@@ -99,7 +99,7 @@ export function RequestForm({
             </Alert>
           )}
           <form action={formAction}>
-            <Field label="Course" htmlFor="courseId" hint="Teach across departments — pick any course.">
+            <Field label="Course" htmlFor="courseId" hint="Teach across departments, so pick any course.">
               <Select id="courseId" name="courseId" required value={courseId} onChange={(e) => setCourseId(e.target.value)}>
                 <option value="" disabled>
                   Select a course…
@@ -108,7 +108,7 @@ export function RequestForm({
                   <optgroup key={dept} label={dept}>
                     {list.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.code} — {c.title}
+                        {c.code} · {c.title}
                       </option>
                     ))}
                   </optgroup>
@@ -151,7 +151,7 @@ export function RequestForm({
 
             <div className="mt-2 flex items-center gap-3">
               <SubmitButton pendingLabel="Submitting…" className={blocked ? "!bg-red-600 hover:!bg-red-700" : ""}>
-                {blocked ? "Slot clashes — submit anyway blocked" : "Submit request"}
+                {blocked ? "Slot clashes, submission blocked" : "Submit request"}
               </SubmitButton>
               {checking && <span className="text-sm text-slate-400">Checking…</span>}
             </div>

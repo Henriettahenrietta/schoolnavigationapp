@@ -121,7 +121,7 @@ export function AllocateForm({
           )}
 
           <form action={formAction}>
-            <Field label="Course" htmlFor="courseId" hint="You can teach across departments — pick any course.">
+            <Field label="Course" htmlFor="courseId" hint="You can teach across departments, so pick any course.">
               <Select id="courseId" name="courseId" required value={courseId} onChange={(e) => setCourseId(e.target.value)}>
                 <option value="" disabled>
                   Select a course…
@@ -130,7 +130,7 @@ export function AllocateForm({
                   <optgroup key={dept} label={dept}>
                     {list.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.code} — {c.title}
+                        {c.code} · {c.title}
                       </option>
                     ))}
                   </optgroup>

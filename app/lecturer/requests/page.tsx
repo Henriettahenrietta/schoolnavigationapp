@@ -63,7 +63,7 @@ export default async function MyRequestsPage({ searchParams }: { searchParams: {
             allocations.map((a) => (
               <TR key={a.id}>
                 <TD className="font-medium text-slate-800">
-                  {a.course.code} — {a.course.title}
+                  {a.course.code} · {a.course.title}
                 </TD>
                 <TD>{DAY_LABELS[a.dayOfWeek as keyof typeof DAY_LABELS] ?? a.dayOfWeek}</TD>
                 <TD>
