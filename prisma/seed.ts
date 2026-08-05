@@ -34,6 +34,7 @@ type DeptConfig = {
   name: string;
   titles: [string, string, string, string];
   lecturers: [string, string];
+  hod: string;
 };
 
 const DEPARTMENTS: DeptConfig[] = [
@@ -42,36 +43,42 @@ const DEPARTMENTS: DeptConfig[] = [
     name: "Marketing",
     titles: ["Principles of Marketing", "Consumer Behaviour", "Marketing Research", "Brand Management"],
     lecturers: ["Dr. Emmanuel Nkeng", "Dr. Estelle Fotso"],
+    hod: "Dr. Pauline Ndifor",
   },
   {
     code: "DGM",
     name: "Digital Marketing",
     titles: ["Introduction to Digital Marketing", "Social Media Marketing", "SEO & Content Marketing", "Digital Analytics"],
     lecturers: ["Dr. Brice Tchoua", "Dr. Christelle Etonde"],
+    hod: "Dr. Armand Belinga",
   },
   {
     code: "GRD",
     name: "Graphic Design",
     titles: ["Design Fundamentals", "Typography", "Illustration & Adobe Illustrator", "Brand Identity Design"],
     lecturers: ["Dr. Yannick Fombad", "Dr. Carine Ekwalla"],
+    hod: "Dr. Solange Mbah",
   },
   {
     code: "MUL",
     name: "Multimedia",
     titles: ["Introduction to Multimedia", "Video Production", "Motion Graphics", "Interactive Media"],
     lecturers: ["Dr. Landry Sona", "Dr. Gaelle Tabi"],
+    hod: "Dr. Rodrigue Ayuk",
   },
   {
     code: "MLS",
     name: "Medical Laboratory Science",
     titles: ["Human Anatomy & Physiology", "Clinical Chemistry", "Haematology", "Medical Microbiology"],
     lecturers: ["Dr. Serge Mballa", "Dr. Mireille Mengue"],
+    hod: "Dr. Beatrice Njoya",
   },
   {
     code: "CSC",
     name: "Computer Science",
     titles: ["Introduction to Computing", "Data Structures", "Database Systems", "Web Development"],
     lecturers: ["Dr. Ulrich Ngu", "Dr. Sylvie Awa"],
+    hod: "Dr. Vincent Tabe",
   },
 ];
 
@@ -148,6 +155,20 @@ async function main() {
 
   for (const dept of DEPARTMENTS) {
     const d = await prisma.department.create({ data: { name: dept.name, code: dept.code } });
+
+    // Every department gets a Head of Department. Computer Science's HOD doubles as the
+    // demo login (hod@cas.test) quoted on the landing and sign-in screens.
+    await prisma.user.create({
+      data: {
+        name: dept.hod,
+        email: dept.code === "CSC" ? "hod@cas.test" : emailFor(dept.hod),
+        passwordHash: hash,
+        role: "hod",
+        staffId: `HOD/${dept.code}`,
+        departmentId: d.id,
+        isActive: true,
+      },
+    });
 
     for (const level of LEVELS) {
       await prisma.programme.create({ data: { departmentId: d.id, name: `${dept.name} ${level} Level`, level } });

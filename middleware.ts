@@ -6,6 +6,7 @@ import { SESSION_COOKIE, verifySession } from "./lib/auth/session";
 // (requireRole) are the authoritative second check.
 
 const ADMIN_PREFIX = "/admin";
+const HOD_PREFIX = "/hod";
 const LECTURER_PREFIX = "/lecturer";
 // Routes reachable only when logged OUT (redirect logged-in users away).
 // NOTE: /login is intentionally excluded so a signed-in user can switch accounts
@@ -14,6 +15,7 @@ const AUTH_PAGES = ["/register", "/forgot-password", "/reset-password"];
 
 function homeFor(role: string): string {
   if (role === "admin") return "/admin";
+  if (role === "hod") return "/hod";
   if (role === "lecturer") return "/lecturer";
   return "/";
 }
@@ -24,6 +26,7 @@ export async function middleware(req: NextRequest) {
   const session = await verifySession(token);
 
   const isAdminArea = pathname.startsWith(ADMIN_PREFIX);
+  const isHodArea = pathname.startsWith(HOD_PREFIX);
   const isLecturerArea = pathname.startsWith(LECTURER_PREFIX);
   const isAuthPage = AUTH_PAGES.some((p) => pathname.startsWith(p));
 
@@ -33,7 +36,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // Protected areas require a session.
-  if ((isAdminArea || isLecturerArea) && !session) {
+  if ((isAdminArea || isHodArea || isLecturerArea) && !session) {
     const url = new URL("/login", req.url);
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
@@ -41,6 +44,9 @@ export async function middleware(req: NextRequest) {
 
   // Enforce role separation.
   if (isAdminArea && session && session.role !== "admin") {
+    return NextResponse.redirect(new URL(homeFor(session.role), req.url));
+  }
+  if (isHodArea && session && session.role !== "hod") {
     return NextResponse.redirect(new URL(homeFor(session.role), req.url));
   }
   if (isLecturerArea && session && session.role !== "lecturer") {
@@ -51,5 +57,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/lecturer/:path*", "/login", "/register", "/forgot-password", "/reset-password"],
+  matcher: ["/admin/:path*", "/hod/:path*", "/lecturer/:path*", "/login", "/register", "/forgot-password", "/reset-password"],
 };

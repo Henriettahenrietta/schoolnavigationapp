@@ -18,7 +18,7 @@ export default async function LoginPage({
     <Card>
       <CardHeader>
         <h1 className="text-xl font-semibold text-slate-900">Sign in</h1>
-        <p className="mt-1 text-sm text-slate-500">Access your admin or lecturer dashboard.</p>
+        <p className="mt-1 text-sm text-slate-500">Access your admin, HOD or lecturer dashboard.</p>
       </CardHeader>
       <CardBody>
         {user && (

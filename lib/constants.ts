@@ -1,7 +1,7 @@
 // Central definitions for the enum-like String columns (SQLite has no enums).
 // Import these everywhere instead of hard-coding literals.
 
-export const ROLES = ["admin", "lecturer", "student"] as const;
+export const ROLES = ["admin", "hod", "lecturer", "student"] as const;
 export type Role = (typeof ROLES)[number];
 
 export const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat"] as const;

@@ -58,6 +58,8 @@ export function homePathForRole(role: Role): string {
   switch (role) {
     case "admin":
       return "/admin";
+    case "hod":
+      return "/hod";
     case "lecturer":
       return "/lecturer";
     default:
