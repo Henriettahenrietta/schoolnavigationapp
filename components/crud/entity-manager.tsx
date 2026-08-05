@@ -69,6 +69,7 @@ export function EntityManager({
   deleteAction,
   canDelete = true,
   rowAction,
+  headerExtra,
 }: {
   title: string;
   subtitle?: string;
@@ -80,6 +81,8 @@ export function EntityManager({
   deleteAction?: DeleteAction;
   canDelete?: boolean;
   rowAction?: RowAction;
+  /** Extra control rendered beside the "New …" button, e.g. a second dialog. */
+  headerExtra?: React.ReactNode;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -109,7 +112,12 @@ export function EntityManager({
       <PageHeader
         title={title}
         subtitle={subtitle}
-        action={<Button onClick={openCreate}>+ New {resource}</Button>}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {headerExtra}
+            <Button onClick={openCreate}>+ New {resource}</Button>
+          </div>
+        }
       />
 
       <Table>

@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/current-user";
 import { EntityManager, type CrudColumn, type CrudField } from "@/components/crud/entity-manager";
-import { saveLecturer, deleteLecturer, toggleHodRole } from "./actions";
+import { saveLecturer, deleteLecturer, demoteHod } from "./actions";
+import { AssignHodDialog, type AssignDepartment, type AssignStaff } from "./assign-hod-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -18,44 +19,16 @@ export default async function LecturersPage() {
     prisma.department.findMany({ orderBy: { name: "asc" } }),
   ]);
 
-  // Who currently heads each department, so the promote confirmation can name the person
-  // being replaced instead of silently swapping them out.
+  // Who currently heads each department, so both the picker and the demote confirmation
+  // can name the person involved.
   const headByDepartment = new Map<number, string>();
   for (const s of staff) {
     if (s.role === "hod" && s.departmentId != null) headByDepartment.set(s.departmentId, s.name);
   }
 
-  const allocationCounts = await prisma.allocation.groupBy({
-    by: ["lecturerId"],
-    _count: true,
-  });
-  const classesBy = new Map(allocationCounts.map((a) => [a.lecturerId, a._count]));
-
   const rows = staff.map((l) => {
     const isHod = l.role === "hod";
     const departmentName = l.department?.name ?? "Unassigned";
-    const incumbent = l.departmentId != null ? headByDepartment.get(l.departmentId) : undefined;
-    const classes = classesBy.get(l.id) ?? 0;
-
-    let roleActionLabel = "";
-    let roleActionConfirm = "";
-    if (isHod) {
-      roleActionLabel = "Make lecturer";
-      roleActionConfirm =
-        `Demote ${l.name} from Head of ${departmentName} back to a normal lecturer?\n\n` +
-        `They will lose the HOD workspace and keep any classes they teach.`;
-    } else if (l.departmentId == null) {
-      // Cannot head a department they do not belong to; Edit first to assign one.
-      roleActionLabel = "";
-    } else {
-      roleActionLabel = "Make HOD";
-      roleActionConfirm =
-        `Make ${l.name} Head of ${departmentName}?` +
-        (incumbent ? `\n\nThis will demote ${incumbent}, the current Head, back to lecturer.` : "") +
-        (classes > 0
-          ? `\n\nThey currently teach ${classes} class${classes === 1 ? "" : "es"}, which stay assigned to them.`
-          : "");
-    }
 
     return {
       id: l.id,
@@ -68,10 +41,31 @@ export default async function LecturersPage() {
       phone: l.phone ?? "",
       isActive: l.isActive,
       statusLabel: l.isActive ? "Active" : "Inactive",
-      roleActionLabel,
-      roleActionConfirm,
+      // Promotion happens through the Assign HOD dialog, where the department is chosen
+      // at the same time. Only stepping down is a single-target action.
+      roleActionLabel: isHod ? "Make lecturer" : "",
+      roleActionConfirm: isHod
+        ? `Step ${l.name} down from Head of ${departmentName} to a normal lecturer?\n\n` +
+          `They stay in ${departmentName} and keep any classes they teach.`
+        : "",
     };
   });
+
+  const assignDepartments: AssignDepartment[] = departments.map((d) => ({
+    id: d.id,
+    name: d.name,
+    headName: headByDepartment.get(d.id) ?? null,
+  }));
+
+  const assignStaff: AssignStaff[] = staff
+    .filter((s) => s.isActive)
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      role: s.role,
+      departmentId: s.departmentId,
+      departmentName: s.department?.name ?? "Unassigned",
+    }));
 
   const columns: CrudColumn[] = [
     { key: "name", label: "Name" },
@@ -101,15 +95,16 @@ export default async function LecturersPage() {
   return (
     <EntityManager
       title="Lecturers & Heads of Department"
-      subtitle="Create and manage teaching accounts. Use Make HOD to promote a lecturer, or Make lecturer to step a Head down. Staff with allocations are deactivated instead of deleted."
+      subtitle="Create and manage teaching accounts. Use Assign HOD to pick a department and its Head together, or Make lecturer to step a Head down. Staff with allocations are deactivated instead of deleted."
       resource="Lecturer"
       columns={columns}
       fields={fields}
       rows={rows}
       saveAction={saveLecturer}
       deleteAction={deleteLecturer}
+      headerExtra={<AssignHodDialog departments={assignDepartments} staff={assignStaff} />}
       rowAction={{
-        action: toggleHodRole,
+        action: demoteHod,
         labelKey: "roleActionLabel",
         confirmKey: "roleActionConfirm",
         className: "text-sm font-medium text-amber-600 hover:text-amber-700",
