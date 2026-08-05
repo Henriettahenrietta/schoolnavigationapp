@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { assertAdmin } from "@/lib/auth/current-user";
 import { hashPassword } from "@/lib/auth/password";
 import { audit } from "@/lib/audit";
+import { notify } from "@/lib/notify";
 import { type ActionState, zodFieldErrors } from "@/lib/crud";
 
 const schema = z.object({
@@ -74,18 +75,86 @@ export async function saveLecturer(_prev: ActionState, formData: FormData): Prom
   return { ok: true };
 }
 
+/**
+ * Promote a lecturer to Head of Department, or demote a Head back to lecturer.
+ *
+ * A department has one Head, so promoting into a department that already has one
+ * demotes the incumbent in the same transaction. The confirmation text shown in the UI
+ * names that person, so the swap is never a surprise.
+ */
+export async function toggleHodRole(formData: FormData) {
+  const admin = await assertAdmin();
+  const id = Number(formData.get("id"));
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: { department: { select: { name: true } } },
+  });
+  // Never let this action touch an admin account or anything unexpected.
+  if (!user || (user.role !== "lecturer" && user.role !== "hod")) return;
+
+  if (user.role === "hod") {
+    await prisma.user.update({ where: { id }, data: { role: "lecturer" } });
+    await audit({
+      userId: admin.id, action: "update", entityType: "user", entityId: id,
+      description: `Demoted ${user.name} from HOD to lecturer`,
+    });
+    await notify({
+      userId: id,
+      title: "Your role changed",
+      message: `You are no longer Head of ${user.department?.name ?? "your department"}. Your account is now a lecturer account.`,
+      link: "/lecturer",
+    });
+  } else {
+    // A Head is defined by their department, so promotion without one is meaningless.
+    if (user.departmentId == null) return;
+
+    await prisma.$transaction(async (tx) => {
+      const incumbents = await tx.user.findMany({
+        where: { role: "hod", departmentId: user.departmentId, id: { not: id } },
+      });
+      for (const prev of incumbents) {
+        await tx.user.update({ where: { id: prev.id }, data: { role: "lecturer" } });
+        await tx.notification.create({
+          data: {
+            userId: prev.id,
+            title: "Your role changed",
+            message: `You are no longer Head of ${user.department?.name ?? "your department"}. Your account is now a lecturer account.`,
+            link: "/lecturer",
+          },
+        });
+      }
+      await tx.user.update({ where: { id }, data: { role: "hod" } });
+    });
+
+    await audit({
+      userId: admin.id, action: "update", entityType: "user", entityId: id,
+      description: `Promoted ${user.name} to HOD of ${user.department?.name ?? "their department"}`,
+    });
+    await notify({
+      userId: id,
+      title: "You are now a Head of Department",
+      message: `You have been made Head of ${user.department?.name ?? "your department"}. Sign in again to open your HOD workspace.`,
+      link: "/hod",
+    });
+  }
+
+  revalidatePath("/admin/lecturers");
+  revalidatePath("/hod");
+}
+
 export async function deleteLecturer(formData: FormData) {
   await assertAdmin();
   const id = Number(formData.get("id"));
   try {
-    // Only allow removing lecturers with no allocations; otherwise deactivate.
+    // Only allow removing staff with no allocations; otherwise deactivate.
     const allocations = await prisma.allocation.count({ where: { lecturerId: id } });
     if (allocations > 0) {
       await prisma.user.update({ where: { id }, data: { isActive: false } });
-      await audit({ action: "deactivate", entityType: "user", entityId: id, description: `Deactivated lecturer #${id} (has allocations)` });
+      await audit({ action: "deactivate", entityType: "user", entityId: id, description: `Deactivated staff #${id} (has allocations)` });
     } else {
       await prisma.user.delete({ where: { id } });
-      await audit({ action: "delete", entityType: "user", entityId: id, description: `Deleted lecturer #${id}` });
+      await audit({ action: "delete", entityType: "user", entityId: id, description: `Deleted staff #${id}` });
     }
   } catch {
     // ignore

@@ -44,6 +44,20 @@ export type Row = Record<string, any> & { id: number };
 type SaveAction = (prev: ActionState, formData: FormData) => Promise<ActionState>;
 type DeleteAction = (formData: FormData) => void | Promise<void>;
 
+/**
+ * An optional extra button on every row, beside Edit and Delete. The label and the
+ * confirmation text are read from the row itself rather than passed as callbacks,
+ * because a server component cannot hand a function across to a client component;
+ * server actions are the one exception, which is why `action` may be passed directly.
+ * A row whose `labelKey` is empty simply gets no button.
+ */
+export type RowAction = {
+  action: DeleteAction;
+  labelKey: string;
+  confirmKey?: string;
+  className?: string;
+};
+
 export function EntityManager({
   title,
   subtitle,
@@ -54,6 +68,7 @@ export function EntityManager({
   saveAction,
   deleteAction,
   canDelete = true,
+  rowAction,
 }: {
   title: string;
   subtitle?: string;
@@ -64,6 +79,7 @@ export function EntityManager({
   saveAction: SaveAction;
   deleteAction?: DeleteAction;
   canDelete?: boolean;
+  rowAction?: RowAction;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -128,6 +144,26 @@ export function EntityManager({
                     >
                       Edit
                     </button>
+                    {rowAction && row[rowAction.labelKey] && (
+                      <form
+                        action={rowAction.action}
+                        onSubmit={(e) => {
+                          const message = rowAction.confirmKey ? row[rowAction.confirmKey] : null;
+                          if (message && !confirm(message)) e.preventDefault();
+                          else setTimeout(() => router.refresh(), 400);
+                        }}
+                      >
+                        <input type="hidden" name="id" value={row.id} />
+                        <button
+                          className={
+                            rowAction.className ??
+                            "text-sm font-medium text-slate-600 hover:text-slate-900"
+                          }
+                        >
+                          {row[rowAction.labelKey]}
+                        </button>
+                      </form>
+                    )}
                     {canDelete && deleteAction && (
                       <form
                         action={deleteAction}
